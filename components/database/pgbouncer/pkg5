@@ -1,0 +1,14 @@
+{
+    "dependencies": [
+        "SUNWcs",
+        "database/postgres-96/developer",
+        "library/libevent2",
+        "library/security/openssl",
+        "shell/ksh93",
+        "system/library"
+    ],
+    "fmris": [
+        "database/postgres/pgbouncer"
+    ],
+    "name": "pgbouncer"
+}

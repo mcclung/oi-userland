@@ -1,0 +1,13 @@
+{
+    "dependencies": [
+        "SUNWcs",
+        "developer/gcc-10",
+        "runtime/perl-522",
+        "shell/ksh93",
+        "system/library"
+    ],
+    "fmris": [
+        "backup/znapzend"
+    ],
+    "name": "znapzend"
+}

@@ -1,0 +1,12 @@
+{
+    "dependencies": [
+        "SUNWcs",
+        "library/guile",
+        "shell/ksh93",
+        "system/library"
+    ],
+    "fmris": [
+        "developer/build/gnu-make"
+    ],
+    "name": "make"
+}

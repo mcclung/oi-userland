@@ -11,12 +11,14 @@
 #
 # Copyright 2017-2018 Aurelien Larcher
 #
-PREFERRED_BITS=64
+BUILD_BITS=64
+BUILD_STYLE=justmake
 
 include ../../../make-rules/shared-macros.mk
 
 COMPONENT_NAME=         ninja
-COMPONENT_VERSION=      1.8.2
+COMPONENT_VERSION=      1.10.2
+COMPONENT_REVISION=	1
 COMPONENT_SUMMARY=      Ninja - a small build system with a focus on speed
 COMPONENT_PROJECT_URL=  https://ninja-build.org/
 COMPONENT_FMRI=         developer/build/ninja
@@ -24,24 +26,23 @@ COMPONENT_CLASSIFICATION=Development/Distribution Tools
 COMPONENT_SRC=    $(COMPONENT_NAME)-$(COMPONENT_VERSION)
 COMPONENT_ARCHIVE=  $(COMPONENT_SRC).tar.gz
 COMPONENT_ARCHIVE_URL= \
-  https://github.com/ninja-build/ninja/archive/v$(COMPONENT_VERSION).tar.gz
+	https://github.com/ninja-build/ninja/archive/v$(COMPONENT_VERSION).tar.gz
 COMPONENT_ARCHIVE_HASH= \
-  sha256:86b8700c3d0880c2b44c2ff67ce42774aaf8c28cbf57725cb881569288c1c6f4
+	sha256:ce35865411f0490368a8fc383f29071de6690cbadc27704734978221f25e2bed
 COMPONENT_LICENSE=      Apache License version 2.0
 
-include $(WS_MAKE_RULES)/prep.mk
-include $(WS_MAKE_RULES)/justmake.mk
-include $(WS_MAKE_RULES)/ips.mk
+include $(WS_MAKE_RULES)/common.mk
 
 PATH=$(GCC_BINDIR):$(PATH.illumos)
+
+PYTHON_VERSION=3.9
 
 COMPONENT_BUILD_ACTION = cd $(@D); \
   CFLAGS="$(CFLAGS)" LDFLAGS="$(LDFLAGS)" ./configure.py --bootstrap --with-python=$(PYTHON.64)
 
 COMPONENT_TEST_CMD = cd $(@D); \
-  CFLAGS="$(CFLAGS)" LDFLAGS="$(LDFLAGS)" ./configure.py && \
-  ./ninja ninja_test && \
-  ./ninja_test --gtest_filter=-SubprocessTest.SetWithLots
+  CFLAGS="$(CFLAGS)" LDFLAGS="$(LDFLAGS)" ./configure.py && ./ninja ninja_test && ./ninja_test
+COMPONENT_TEST_TARGETS =
 
 COMPONENT_INSTALL_ACTION = cd $(@D); \
 	$(MKDIR) $(PROTO_DIR)/usr/bin && \
@@ -56,19 +57,20 @@ COMPONENT_INSTALL_ACTION = cd $(@D); \
   install -vDm644 misc/zsh-completion \
       $(PROTO_DIR)/usr/share/zsh-completions/_ninja
 
-COMPONENT_TEST_TRANSFORMS+= '-n -e "/^\[/p"'
+COMPONENT_PRE_TEST_ACTION = \
+    cd $(BUILD_DIR_64); \
+    ./ninja all;
 
-build:    $(BUILD_64)
-
-install:  $(INSTALL_64)
-
-test:    $(TEST_64)
+COMPONENT_TEST_CMD = cd $(BUILD_DIR_64); ./ninja_test
+COMPONENT_TEST_MASTER = $(COMPONENT_TEST_RESULTS_DIR)/results-all.master
+COMPONENT_TEST_TRANSFORMS+= '-n -e "/^\[[0-9]*\/341\]/p"'
 
 # Build dependencies
-REQUIRED_PACKAGES += runtime/python-27
+REQUIRED_PACKAGES += developer/lexer/re2c
+REQUIRED_PACKAGES += runtime/python-39
 
 # Auto-generated dependencies
-REQUIRED_PACKAGES += system/library
-REQUIRED_PACKAGES += $(GXX_RUNTIME_PKG)
 REQUIRED_PACKAGES += $(GCC_RUNTIME_PKG)
+REQUIRED_PACKAGES += $(GXX_RUNTIME_PKG)
+REQUIRED_PACKAGES += system/library
 REQUIRED_PACKAGES += system/library/math

@@ -18,43 +18,39 @@
 #
 # CDDL HEADER END
 #
+
+#
 # Copyright (c) 2013, Colin Ellis. All rights reserved.
 # Copyright (c) 2011, 2012, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2019, Michal Nowak
+# Copyright (c) 2020, Andreas Wacknitz
 #
+
+BUILD_BITS=			32_and_64
 include ../../../make-rules/shared-macros.mk
 
 COMPONENT_NAME=		libassuan
-COMPONENT_VERSION=	2.1.3
-COMPONENT_REVISION=	1
+COMPONENT_VERSION=	2.5.5
 COMPONENT_SRC=		$(COMPONENT_NAME)-$(COMPONENT_VERSION)
-COMPONENT_PROJECT_URL=	http://www.gnupg.org/related_software/libassuan/
+COMPONENT_PROJECT_URL=	https://www.gnupg.org/related_software/libassuan/
 COMPONENT_ARCHIVE=	$(COMPONENT_SRC).tar.bz2
-COMPONENT_ARCHIVE_HASH=	\
-    sha256:fa2170b353c928eb59610e0700c34947f1890634ddf7bcf2366c9c88b4f51d1a
+COMPONENT_ARCHIVE_HASH=	sha256:8e8c2fcc982f9ca67dcbb1d95e2dc746b1739a4668bc20b3a3c5be632edb34e4
 COMPONENT_ARCHIVE_URL=	ftp://ftp.gnupg.org/gcrypt/libassuan/$(COMPONENT_ARCHIVE)
-COMPONENT_BUGDB=	utility/gnupg
+COMPONENT_FMRI=		library/security/libassuan
 
-include $(WS_MAKE_RULES)/prep.mk
-include $(WS_MAKE_RULES)/configure.mk
-include $(WS_MAKE_RULES)/ips.mk
+include $(WS_MAKE_RULES)/common.mk
 
 CONFIGURE_ENV +=	INSTALL="$(INSTALL)"
 
-CFLAGS += -std=gnu89
+CONFIGURE_OPTIONS  +=	--localstatedir=/var
+CONFIGURE_OPTIONS  +=	--infodir=$(CONFIGURE_INFODIR)
+CONFIGURE_OPTIONS  +=	--enable-shared
+CONFIGURE_OPTIONS  +=	--disable-static
+CONFIGURE_OPTIONS  +=	--disable-silent-rules
+CONFIGURE_OPTIONS  +=	--with-gpg-error-prefix=$(CONFIGURE_PREFIX)
+CONFIGURE_OPTIONS  +=	--with-pic
 
-CONFIGURE_OPTIONS  +=		--localstatedir=/var
-CONFIGURE_OPTIONS  +=		--infodir=$(CONFIGURE_INFODIR)
-CONFIGURE_OPTIONS  +=		--enable-shared
-CONFIGURE_OPTIONS  +=		--disable-static
-CONFIGURE_OPTIONS  +=		--with-gpg-error-prefix=$(CONFIGURE_PREFIX)
-CONFIGURE_OPTIONS  +=		--with-pic
-
-build: $(BUILD_32_and_64)
-
-install: $(INSTALL_32_and_64)
-
-test: $(TEST_32_and_64)
-
+# Auto-generated dependencies
 REQUIRED_PACKAGES += SUNWcs
 REQUIRED_PACKAGES += library/security/libgpg-error
 REQUIRED_PACKAGES += system/library

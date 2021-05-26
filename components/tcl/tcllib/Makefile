@@ -10,26 +10,26 @@
 
 #
 # Copyright (c) 2016 Sergey Avseyev
+# Copyright (c) 2018, Michal Nowak
 #
+
+BUILD_BITS= 32_and_64
 include ../../../make-rules/shared-macros.mk
 
 COMPONENT_NAME=		tcllib
-COMPONENT_VERSION=	1.18
-COMPONENT_PROJECT_URL=	http://tcllib.sourceforge.net/
+COMPONENT_VERSION=	1.20
+COMPONENT_PROJECT_URL=	https://core.tcl.tk/tcllib/doc/trunk/embedded/index.html
 COMPONENT_SUMMARY=	The standard Tcl library
 COMPONENT_FMRI=		tcl/tcllib
 COMPONENT_CLASSIFICATION=       Development/Other Languages
 COMPONENT_SRC=		$(COMPONENT_NAME)-$(COMPONENT_VERSION)
-COMPONENT_ARCHIVE=	$(COMPONENT_SRC).tar.bz2
-COMPONENT_ARCHIVE_HASH=	\
-    sha256:73ee3067e20663e9401d0291028f9a5ffab8e71c7bbe1673c79edb5f266cfe7c
-COMPONENT_ARCHIVE_URL=	http://downloads.sourceforge.net/tcllib/$(COMPONENT_ARCHIVE)
+COMPONENT_ARCHIVE=	$(COMPONENT_SRC).tar.xz
+COMPONENT_ARCHIVE_HASH= sha256:199e8ec7ee26220e8463bc84dd55c44965fc8ef4d4ac6e4684b2b1c03b1bd5b9
+COMPONENT_ARCHIVE_URL=	https://core.tcl.tk/tcllib/uv/$(COMPONENT_ARCHIVE)
 COMPONENT_LICENSE=	TCL
 COMPONENT_LICENSE_FILE=	license.terms
 
-include $(WS_MAKE_RULES)/prep.mk
-include $(WS_MAKE_RULES)/configure.mk
-include $(WS_MAKE_RULES)/ips.mk
+include $(WS_MAKE_RULES)/common.mk
 
 COMPONENT_PREP_ACTION = \
         (for i in $$(find $(SOURCE_DIR)/idoc/man -name '*.n') ; do \
@@ -50,11 +50,5 @@ COMPONENT_POST_INSTALL_ACTION += \
         done); \
         $(MV) $(PROTO_DIR)$(USRBINDIR)/$(MACH$(BITS))/{,tcl}page
 
-# common targets
-build:		$(BUILD_32_and_64)
-
-install:	$(INSTALL_32_and_64)
-
-test:		$(TEST_32_and_64)
-
+# Auto-generated dependencies
 REQUIRED_PACKAGES += runtime/tcl-8

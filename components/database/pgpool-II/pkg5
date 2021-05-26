@@ -1,0 +1,15 @@
+{
+    "dependencies": [
+        "SUNWcs",
+        "data/docbook/dtds",
+        "database/postgres-96/library",
+        "developer/documentation-tool/openjade",
+        "shell/ksh93",
+        "system/library",
+        "system/library/math"
+    ],
+    "fmris": [
+        "database/postgres/pgpool-II"
+    ],
+    "name": "pgpool-II"
+}

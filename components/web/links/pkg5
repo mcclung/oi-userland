@@ -1,0 +1,18 @@
+{
+    "dependencies": [
+        "SUNWcs",
+        "compress/bzip2",
+        "compress/xz",
+        "compress/zstd",
+        "library/brotli",
+        "library/libevent",
+        "library/security/openssl-11",
+        "library/zlib",
+        "shell/ksh93",
+        "system/library"
+    ],
+    "fmris": [
+        "web/browser/links"
+    ],
+    "name": "links"
+}

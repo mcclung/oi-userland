@@ -35,6 +35,7 @@ GIT_CHANGESET=HEAD
 
 PATH = $(PATH.gnu)
 
+COMPONENT_PREP_GIT=no
 include $(WS_MAKE_RULES)/prep.mk
 include $(WS_MAKE_RULES)/configure.mk
 
@@ -71,6 +72,8 @@ CONFIGURE_OPTIONS += --libexecdir=/usr/lib
 CONFIGURE_OPTIONS += --localstatedir=/var/lib
 CONFIGURE_OPTIONS += --enable-private-nwam-headers
 
+CONFIGURE_ENV += INTLTOOL_PERL="$(PERL)"
+
 COMPONENT_INSTALL_ENV += GCONF_DISABLE_MAKEFILE_SCHEMA_INSTALL=1
 
 update-publish:
@@ -94,5 +97,6 @@ REQUIRED_PACKAGES += library/desktop/gdk-pixbuf
 REQUIRED_PACKAGES += library/desktop/gtk2
 REQUIRED_PACKAGES += library/glib2
 REQUIRED_PACKAGES += library/libnotify
+REQUIRED_PACKAGES += library/perl-5/xml-parser-522
 REQUIRED_PACKAGES += SUNWcs
 REQUIRED_PACKAGES += system/library

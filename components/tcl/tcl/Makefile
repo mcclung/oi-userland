@@ -21,27 +21,24 @@
 
 #
 # Copyright (c) 2011, 2012, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2020, Michal Nowak
 #
 
+BUILD_BITS=		32_and_64
 include ../../../make-rules/shared-macros.mk
 
 COMPONENT_NAME=         tcl
-COMPONENT_VERSION=      8.6.7
-COMPONENT_REVISION=	1
+COMPONENT_VERSION=      8.6.11
 COMPONENT_MINOR_VERSION= $(shell echo $(COMPONENT_VERSION) | $(GSED) -e 's/\([0-9]\+\)\.\([0-9]\+\)\.[0-9]\+/\1.\2/')
-COMPONENT_PROJECT_URL=	http://prdownloads.sourceforge.net/tcl/
+COMPONENT_PROJECT_URL=	https://prdownloads.sourceforge.net/tcl/
 COMPONENT_SRC=          $(COMPONENT_NAME)$(COMPONENT_VERSION)
 COMPONENT_ARCHIVE=      $(COMPONENT_NAME)-core$(COMPONENT_VERSION)-src.tar.gz
-COMPONENT_ARCHIVE_HASH= \
-    sha256:8441fbbce7b7f94a0f53ecfbe5e0be58aa8bbb6eefeff7f43671d4e6d70289d1
+COMPONENT_ARCHIVE_HASH= sha256:cfb49aab82bd179651e23eeeb69606f51b0ddc575ca55c3d35e2457469024cfa
 COMPONENT_ARCHIVE_URL=  $(COMPONENT_PROJECT_URL)$(COMPONENT_ARCHIVE)
-COMPONENT_BUGDB=	library/libtcl
 COMPONENT_LICENSE=	BSD-like
 COMPONENT_LICENSE_FILE=	license.terms
 
-include $(WS_MAKE_RULES)/prep.mk
-include $(WS_MAKE_RULES)/configure.mk
-include $(WS_MAKE_RULES)/ips.mk
+include $(WS_MAKE_RULES)/common.mk
 
 COMPONENT_PREP_ACTION = \
 	(cd $(SOURCE_DIR)/unix ; autoreconf -f; \
@@ -65,9 +62,6 @@ CONFIGURE_OPTIONS.64	+= --enable-64bit
 
 COMPONENT_TEST_TARGETS = test
 
-# common targets
-build:		$(BUILD_32_and_64)
-
 install:	$(INSTALL_32_and_64) $(PROTOUSRLIBDIR)/tclConfig.sh
 
 $(PROTOUSRLIBDIR)/tclConfig.sh:		$(INSTALL_32)
@@ -83,8 +77,7 @@ COMPONENT_TEST_TRANSFORMS = "'/append.test/ {results = 1}; /httpold.test/ {resul
 
 PKG_MACROS += COMPONENT_MINOR_VERSION=$(COMPONENT_MINOR_VERSION)
 
-test: 		$(TEST_32_and_64)
-
+# Auto-generated dependencies
 REQUIRED_PACKAGES += library/zlib
 REQUIRED_PACKAGES += system/library
 REQUIRED_PACKAGES += system/library/math

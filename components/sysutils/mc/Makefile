@@ -21,29 +21,27 @@
 
 #
 # Copyright (c) 2011, 2013, Oracle and/or its affiliates. All rights reserved.
-# Copyright (c) 2019, Michal Nowak
+# Copyright (c) 2020, Michal Nowak
 #
+
+BUILD_BITS=		64
 
 include ../../../make-rules/shared-macros.mk
 
 COMPONENT_NAME=		mc
-COMPONENT_VERSION=	4.8.22
-COMPONENT_REVISION=	1
+COMPONENT_VERSION=	4.8.26
 COMPONENT_FMRI=		file/mc
 COMPONENT_SUMMARY=	The GNU Midnight Commander file manager
 COMPONENT_DESCRIPTION=	GNU Midnight Commander is a full-screen text mode application that allows user to copy, move and delete files and whole directory trees, search for files and run commands in the subshell
 COMPONENT_CLASSIFICATION=	Desktop (GNOME)/File Managers
-COMPONENT_PROJECT_URL=	http://www.midnight-commander.org/
+COMPONENT_PROJECT_URL=	https://www.midnight-commander.org/
 COMPONENT_SRC=		$(COMPONENT_NAME)-$(COMPONENT_VERSION)
 COMPONENT_ARCHIVE=	$(COMPONENT_SRC).tar.xz
-COMPONENT_ARCHIVE_HASH=	\
-	sha256:ee7868d7ba0498cf2cccefe107d7efee7f2571098806bba2aed5a159db801318
+COMPONENT_ARCHIVE_HASH=	sha256:c6deadc50595f2d9a22dc6c299a9f28b393e358346ebf6ca444a8469dc166c27
 COMPONENT_ARCHIVE_URL=	http://ftp.midnight-commander.org/$(COMPONENT_ARCHIVE)
 COMPONENT_LICENSE=	GPLv3
 
-include $(WS_MAKE_RULES)/prep.mk
-include $(WS_MAKE_RULES)/configure.mk
-include $(WS_MAKE_RULES)/ips.mk
+include $(WS_MAKE_RULES)/common.mk
 
 CONFIGURE_BINDIR.64 = $(CONFIGURE_PREFIX)/bin
 
@@ -57,16 +55,17 @@ CONFIGURE_OPTIONS += --with-screen=slang
 CONFIGURE_OPTIONS += --enable-vfs-sftp=no
 CONFIGURE_OPTIONS += "mc_cv_nroff_tascii="
 
-build:		$(BUILD_64)
+COMPONENT_TEST_TRANSFORMS += \
+	'-n ' \
+	'-e "/TOTAL/p" ' \
+	'-e "/SKIP/p" ' \
+	'-e "/PASS/p" ' \
+	'-e "/FAIL/p" ' \
+	'-e "/ERROR/p" '
 
-install:	$(INSTALL_64)
-
-test:		$(NO_TESTS)
-
-REQUIRED_PACKAGES += runtime/perl-522
 # Auto-generated dependencies
+REQUIRED_PACKAGES += SUNWcs
 REQUIRED_PACKAGES += library/glib2
 REQUIRED_PACKAGES += library/slang
-REQUIRED_PACKAGES += runtime/perl-524
-REQUIRED_PACKAGES += SUNWcs
+REQUIRED_PACKAGES += runtime/perl-522
 REQUIRED_PACKAGES += system/library

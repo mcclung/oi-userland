@@ -1,0 +1,12 @@
+{
+    "dependencies": [
+        "SUNWcs",
+        "library/security/libgpg-error",
+        "shell/ksh93",
+        "system/library"
+    ],
+    "fmris": [
+        "system/library/security/libgcrypt"
+    ],
+    "name": "libgcrypt"
+}

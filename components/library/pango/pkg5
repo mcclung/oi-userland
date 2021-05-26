@@ -1,0 +1,24 @@
+{
+    "dependencies": [
+        "SUNWcs",
+        "developer/build/meson",
+        "developer/build/ninja",
+        "library/c++/harfbuzz",
+        "library/desktop/cairo",
+        "library/fribidi",
+        "library/glib2",
+        "shell/ksh93",
+        "system/input-method/library/libthai",
+        "system/library",
+        "system/library/fontconfig",
+        "system/library/freetype-2",
+        "system/library/math",
+        "x11/library/libx11",
+        "x11/library/libxft",
+        "x11/library/libxrender"
+    ],
+    "fmris": [
+        "library/desktop/pango"
+    ],
+    "name": "pango"
+}

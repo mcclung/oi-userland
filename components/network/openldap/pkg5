@@ -1,0 +1,16 @@
+{
+    "dependencies": [
+        "SUNWcs",
+        "database/berkeleydb-5",
+        "developer/icu",
+        "library/libtool/libltdl",
+        "library/security/openssl",
+        "shell/ksh93",
+        "system/library",
+        "system/library/security/libsasl"
+    ],
+    "fmris": [
+        "library/openldap"
+    ],
+    "name": "openldap"
+}

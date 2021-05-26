@@ -22,13 +22,14 @@
 #
 # Copyright (c) 2011, 2012, Oracle and/or its affiliates. All rights reserved.
 # Copyright (c) 2017, Aurelien Larcher
-# Copyright (c) 2018, Michal Nowak
+# Copyright (c) 2019, Michal Nowak
 #
 
+BUILD_BITS=		32_and_64
 include ../../../make-rules/shared-macros.mk
 
 COMPONENT_NAME=		libexpat
-COMPONENT_VERSION=	2.2.6
+COMPONENT_VERSION=	2.4.1
 COMPONENT_VERSION_U=	$(shell echo $(COMPONENT_VERSION) | tr . _)
 COMPONENT_FMRI=		library/expat
 COMPONENT_SUMMARY=	libexpat - XML parser library
@@ -37,19 +38,17 @@ COMPONENT_CLASSIFICATION=	System/Libraries
 COMPONENT_PROJECT_URL=	https://libexpat.github.io
 COMPONENT_SRC_NAME=	expat
 COMPONENT_SRC=		$(COMPONENT_SRC_NAME)-$(COMPONENT_VERSION)
-COMPONENT_ARCHIVE=	$(COMPONENT_SRC).tar.bz2
-COMPONENT_ARCHIVE_HASH=	\
-    sha256:17b43c2716d521369f82fc2dc70f359860e90fa440bea65b3b85f0b246ea81f2
-COMPONENT_ARCHIVE_URL= \
-    https://github.com/libexpat/libexpat/releases/download/R_$(COMPONENT_VERSION_U)/$(COMPONENT_ARCHIVE)
+COMPONENT_ARCHIVE=	$(COMPONENT_SRC).tar.lz
+COMPONENT_ARCHIVE_HASH= sha256:8541697089dec1e28a2ec834adc135d18f47e1db8c829af469eb46bbab87cefc
+COMPONENT_ARCHIVE_URL= https://github.com/libexpat/libexpat/releases/download/R_$(COMPONENT_VERSION_U)/$(COMPONENT_ARCHIVE)
 COMPONENT_LICENSE=	expat license
 
-include $(WS_MAKE_RULES)/prep.mk
-include $(WS_MAKE_RULES)/configure.mk
-include $(WS_MAKE_RULES)/ips.mk
+include $(WS_MAKE_RULES)/common.mk
 
 CFLAGS += $(CPP_LARGEFILES)
 
+# Deliver only 64-bit binary
+CONFIGURE_OPTIONS.64+= --bindir=/usr/bin
 CONFIGURE_OPTIONS+= --disable-static
 
 COMPONENT_TEST_MASTER = $(COMPONENT_TEST_RESULTS_DIR)/results-all.master
@@ -64,13 +63,6 @@ COMPONENT_TEST_TRANSFORMS= \
 	'-e "/FAIL/p" '  \
 	'-e "/XPASS/p" ' \
 	'-e "/ERROR/p" ' \
-
-# common targets
-build:		$(BUILD_32_and_64)
-
-install:	$(INSTALL_32_and_64)
-
-test:		$(TEST_32_and_64)
 
 # Auto-generated dependencies
 REQUIRED_PACKAGES += system/library

@@ -1,0 +1,18 @@
+{
+    "dependencies": [
+        "SUNWcs",
+        "runtime/python-27",
+        "runtime/python-35",
+        "runtime/python-37",
+        "runtime/python-39",
+        "shell/ksh93"
+    ],
+    "fmris": [
+        "library/python/pycparser-27",
+        "library/python/pycparser-35",
+        "library/python/pycparser-37",
+        "library/python/pycparser-39",
+        "library/python/pycparser"
+    ],
+    "name": "pycparser"
+}

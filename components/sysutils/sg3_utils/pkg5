@@ -1,0 +1,13 @@
+{
+    "dependencies": [
+        "SUNWcs",
+        "developer/gcc-10",
+        "shell/bash",
+        "shell/ksh93",
+        "system/library"
+    ],
+    "fmris": [
+        "system/storage/sg3_utils"
+    ],
+    "name": "sg3_utils"
+}

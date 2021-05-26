@@ -9,13 +9,15 @@
 #
 
 #
+# Copyright 2021 Gary Mills
 # Copyright (c) 2017 Dariusz Sendkowski
 #
+
 include ../../../make-rules/shared-macros.mk
 
 COMPONENT_NAME=		openbox
 COMPONENT_VERSION=	3.6.1
-COMPONENT_REVISION=     1
+COMPONENT_REVISION=     3
 COMPONENT_PROJECT_URL=	http://openbox.org
 COMPONENT_SUMMARY=	A minimalistic,highly configurable, next generation window manager with extensive standards support.
 COMPONENT_FMRI=         desktop/window-manager/$(COMPONENT_NAME)
@@ -27,6 +29,9 @@ COMPONENT_ARCHIVE_URL=	http://openbox.org/dist/openbox/$(COMPONENT_ARCHIVE)
 COMPONENT_LICENSE=      GPL	
 COMPONENT_LICENSE_FILE=	COPYING
 
+# Set the python version
+PYTHON_VERSION = 3.5
+
 include $(WS_MAKE_RULES)/prep.mk
 include $(WS_MAKE_RULES)/configure.mk
 include $(WS_MAKE_RULES)/ips.mk
@@ -36,6 +41,7 @@ COMPONENT_INSTALL_ENV=	DEST_DIR=$(PROTO_DIR)
 
 CONFIGURE_OPTIONS += --disable-static
 CONFIGURE_OPTIONS += --libexecdir=$(USRBINDIR)
+CONFIGURE_OPTIONS += --disable-imlib2
 
 CONFIGURE_BINDIR.64=	$(CONFIGURE_BINDIR.32)
 
@@ -51,7 +57,7 @@ build:		$(BUILD_64)
 
 install:	$(INSTALL_64)
 
-test:		$(TEST_64)
+test:		$(NO_TESTS)
 
 REQUIRED_PACKAGES += image/library/librsvg
 REQUIRED_PACKAGES += library/desktop/cairo
@@ -60,8 +66,8 @@ REQUIRED_PACKAGES += library/desktop/pango
 REQUIRED_PACKAGES += library/desktop/startup-notification
 REQUIRED_PACKAGES += library/glib2
 REQUIRED_PACKAGES += library/libxml2
-REQUIRED_PACKAGES += library/python/python-xdg-27
-REQUIRED_PACKAGES += runtime/python-27
+REQUIRED_PACKAGES += library/python/python-xdg-35
+REQUIRED_PACKAGES += runtime/python-35
 REQUIRED_PACKAGES += SUNWcs
 REQUIRED_PACKAGES += system/library
 REQUIRED_PACKAGES += system/library/fontconfig

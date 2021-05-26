@@ -23,33 +23,51 @@
 # Copyright (c) 2011, 2013, Oracle and/or its affiliates. All rights reserved.
 #
 
+BUILD_BITS=			32_and_64
+BUILD_SYSTEM=		configure
+
 include ../../../make-rules/shared-macros.mk
 
 COMPONENT_NAME=		make
-COMPONENT_VERSION=	4.2.1
-COMPONENT_PROJECT_URL=	http://www.gnu.org/software/make/
+COMPONENT_VERSION=	4.3
+COMPONENT_PROJECT_URL=	https://www.gnu.org/software/make/
 COMPONENT_SRC=		$(COMPONENT_NAME)-$(COMPONENT_VERSION)
 COMPONENT_ARCHIVE=	$(COMPONENT_SRC).tar.gz
-COMPONENT_ARCHIVE_HASH=	\
-    sha256:e40b8f018c1da64edd1cc9a6fce5fa63b2e707e404e20cad91fbae337c98a5b7
-COMPONENT_ARCHIVE_URL=	http://ftp.gnu.org/gnu/make/$(COMPONENT_ARCHIVE)
-COMPONENT_BUGDB=	utility/gnu-make
+COMPONENT_ARCHIVE_HASH=	sha256:e05fdde47c5f7ca45cb697e973894ff4f5d79e13b750ed57d7b66d8defc78e19
+COMPONENT_ARCHIVE_URL=	https://ftp.gnu.org/gnu/make/$(COMPONENT_ARCHIVE)
 
-include $(WS_MAKE_RULES)/prep.mk
-include $(WS_MAKE_RULES)/configure.mk
-include $(WS_MAKE_RULES)/ips.mk
+include $(WS_MAKE_RULES)/common.mk
 
-CONFIGURE_OPTIONS  +=		--program-prefix=g
-CONFIGURE_OPTIONS  +=		--infodir=$(CONFIGURE_INFODIR)
+COMPONENT_PREP_ACTION = ( cd $(@D) && autoreconf -fi )
+
+COMPONENT_PRE_CONFIGURE_ACTION = ( $(CLONEY) $(SOURCE_DIR) $(@D) )
+
+CONFIGURE_OPTIONS +=	--program-prefix=g
+CONFIGURE_OPTIONS +=	--infodir=$(CONFIGURE_INFODIR)
+CONFIGURE_OPTIONS +=	--with-guile
 
 ASLR_MODE = $(ASLR_ENABLE)
 
-# common targets
-build:		$(BUILD_32_and_64)
+# force re-runs to be the same
+COMPONENT_PRE_TEST_ACTION = \
+    ($(TOUCH) $(SOURCE_DIR)/getloadavg.c)
 
-install:	$(INSTALL_32_and_64)
+COMPONENT_TEST_MASTER = $(COMPONENT_TEST_RESULTS_DIR)/results-all.master
 
-test:		$(TEST_32_and_64)
+# Strip compilation lines from test output
+COMPONENT_TEST_TRANSFORMS += \
+    '-e "s|^.*$(CC).*$$|XXX_CC_XXX|g" ' \
+    '-e "s|^.*source=.*libtool=no.*$$|XXX_CC_XXX|g" ' \
+    '-e "s|^.*DEPDIR=.deps.*$$|XXX_CC_XXX|g" ' \
+    '-e "s|^1-minute.*$$|XXX_CC_XXX|g" ' \
+    '-e "s|^.*load average.*$$|XXX_CC_XXX|g" ' \
+    '-e "s|^.*Running tests for GNU make.*$$|XXX_CC_XXX|g" ' \
+    '-e "s|^.==========.*$$|XXX_CC_XXX|g" ' \
+    '-e "s|^Clearing work.*$$|XXX_CC_XXX|g" ' \
+    '-e "s|^config.status: .*$$|XXX_CC_XXX|g" ' \
+    '-e "s|^make.*: Leaving directory.*$$|XXX_CC_XXX|g" ' \
+    '-e "s|^make.*: Entering directory.*$$|XXX_CC_XXX|g" ' \
+    '-e "/^XXX_CC_XXX$$/d" '
 
 # Auto-generated dependencies
 REQUIRED_PACKAGES += library/guile

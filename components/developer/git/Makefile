@@ -21,20 +21,23 @@
 
 #
 # Copyright (c) 2011, 2012, Oracle and/or its affiliates. All rights reserved.
-# Copyright (c) 2019, Michal Nowak
+# Copyright (c) 2020, Michal Nowak
+# Copyright (c) 2021, Nona Hansel
 #
+
+BUILD_BITS=		64
 
 include ../../../make-rules/shared-macros.mk
 
 COMPONENT_NAME=		git
-COMPONENT_VERSION=	2.21.0
+COMPONENT_VERSION=	2.31.1
 COMPONENT_SUMMARY=	git - Fast Version Control System
 COMPONENT_PROJECT_URL=	https://git-scm.com/
 COMPONENT_FMRI=		developer/versioning/git
 COMPONENT_CLASSIFICATION=	Development/Source Code Management
 COMPONENT_SRC=		$(COMPONENT_NAME)-$(COMPONENT_VERSION)
 COMPONENT_ARCHIVE=	$(COMPONENT_SRC).tar.xz
-COMPONENT_ARCHIVE_HASH=	sha256:8ccb1ce743ee991d91697e163c47c11be4bf81efbdd9fb0b4a7ad77cc0020d28
+COMPONENT_ARCHIVE_HASH=	sha256:9f61417a44d5b954a5012b6f34e526a3336dcf5dd720e2bb7ada92ad8b3d6680
 COMPONENT_ARCHIVE_URL=	https://www.kernel.org/pub/software/scm/git/$(COMPONENT_ARCHIVE)
 COMPONENT_LICENSE=	GPLv2
 COMPONENT_DESCRIPTION=	Git is a free & open source, distributed version control system designed to handle everything from small to very large projects with speed and efficiency.
@@ -43,17 +46,16 @@ COMPONENT_DESCRIPTION=	Git is a free & open source, distributed version control 
 # man pages are a separate archive
 #
 COMPONENT_ARCHIVE_1=		$(COMPONENT_NAME)-manpages-$(COMPONENT_VERSION).tar.xz
-COMPONENT_ARCHIVE_HASH_1=	sha256:2f68dc24931c0d05f70167d9ffe6c33ef6b0b6c75b92301ddcda55b9b0f5ec51
+COMPONENT_ARCHIVE_HASH_1=	sha256:5d0d443c57155da2f201584d4c8c5ad10a0a24ff3af3a7a77cdc8f56dddac702
 COMPONENT_ARCHIVE_URL_1=	https://www.kernel.org/pub/software/scm/git/$(COMPONENT_ARCHIVE_1)
 
-include $(WS_MAKE_RULES)/prep.mk
-include $(WS_MAKE_RULES)/configure.mk
-include $(WS_MAKE_RULES)/ips.mk
+PYTHON_VERSION=	3.9
+include $(WS_MAKE_RULES)/common.mk
+
+# With PATH.gnu gmake test stalls at t6030, so don't use it!
+#PATH = $(PATH.gnu)
 
 LDFLAGS += -lnsl -lsocket
-
-CONFIGURE_BINDIR.64 =   $(CONFIGURE_BINDIR.32)
-CONFIGURE_LIBDIR.64 =   $(CONFIGURE_PREFIX)/lib
 
 CONFIGURE_PREFIX    =	/usr
 CONFIGURE_OPTIONS  +=	--with-libpcre2
@@ -66,6 +68,12 @@ CONFIGURE_OPTIONS  +=	CPPFLAGS="-I/usr/include/pcre"
 COMPONENT_BUILD_ENV+=	NO_PERL_MAKEMAKER=1
 COMPONENT_BUILD_ENV+=	V=1
 COMPONENT_INSTALL_ENV+=	NO_PERL_MAKEMAKER=1
+
+#
+# perl's install path for sparc is based off the value of the
+# "arch" command.  So we must package that way also.
+#
+PKG_MACROS +=		P_ARCH=$(shell arch)
 
 # This runs configure but configure doesn't generate a Makefile.
 # Instead a Makefile comes with git.
@@ -92,6 +100,9 @@ COMPONENT_INSTALL_ARGS+=        perllibdir=$(shell $(PERL) -MConfig -e 'print "$
 COMPONENT_INSTALL_ARGS+=        VENDORPREFIX=$(shell $(PERL) -MConfig -e 'print "$$Config{installvendorlib}"')
 COMPONENT_INSTALL_ARGS+=        PERLPREFIX=$(shell $(PERL) -MConfig -e 'print "$$Config{installvendorarch}"')
 COMPONENT_INSTALL_ARGS+=        INSTALLVENDORLIB=$(shell $(PERL) -MConfig -e 'print "$$Config{installvendorlib}"')
+
+COMPONENT_TEST_ENV += PATH=$(PATH.gnu)
+COMPONENT_TEST_ENV += LC_ALL=C.UTF-8
 
 # many failures; keep going; later versions of git are much cleaner
 COMPONENT_TEST_ARGS += -k -i
@@ -143,28 +154,28 @@ $(BUILD_DIR_64)/.contrib:
 
 COMPONENT_TEST_ENV += PATH=$(PATH.gnu)
 
-build:		$(BUILD_64)
-
 install:	$(INSTALL_64) $(BUILD_DIR)/.manpages $(BUILD_DIR_64)/.contrib
 
-test:		$(TEST_64)
-
 # Test dependencies
+REQUIRED_PACKAGES += developer/fakeroot
+REQUIRED_PACKAGES += developer/versioning/cvs
 REQUIRED_PACKAGES += system/library/iconv/extra
 REQUIRED_PACKAGES += system/library/iconv/unicode
 REQUIRED_PACKAGES += system/library/iconv/utf-8
+REQUIRED_PACKAGES += library/perl-5/database
 REQUIRED_PACKAGES += library/perl-5/sqlite-dbi
 REQUIRED_PACKAGES += library/perl-5/subversion
 REQUIRED_PACKAGES += locale/is
 REQUIRED_PACKAGES += locale/is-extra
 
 # Auto-generated dependencies
+REQUIRED_PACKAGES += SUNWcs
 REQUIRED_PACKAGES += library/expat
 REQUIRED_PACKAGES += library/pcre2
 REQUIRED_PACKAGES += library/zlib
 REQUIRED_PACKAGES += runtime/perl-522
-REQUIRED_PACKAGES += runtime/python-27
+REQUIRED_PACKAGES += runtime/python-39
 REQUIRED_PACKAGES += shell/bash
-REQUIRED_PACKAGES += SUNWcs
+#REQUIRED_PACKAGES += shell/ksh93
 REQUIRED_PACKAGES += system/library
 REQUIRED_PACKAGES += web/curl

@@ -10,35 +10,24 @@
 
 #
 # Copyright 2017 Aurelien Larcher
+# Copyright 2019 Michal Nowak
 #
 
 include ../../../make-rules/shared-macros.mk
+include $(WS_MAKE_RULES)/x11.mk
 
 COMPONENT_NAME=           xkeyboard-config
-COMPONENT_VERSION=        2.23.1
-COMPONENT_SUMMARY=        X Keyboard Configuration Database
-COMPONENT_PROJECT_URL=    https://freedesktop.org/wiki/Software/XKeyboardConfig/
+COMPONENT_VERSION=        2.32
 COMPONENT_FMRI=           x11/keyboard/data-xkb
+COMPONENT_SUMMARY=        X Keyboard Configuration Database
 COMPONENT_CLASSIFICATION= System/X11
-COMPONENT_SRC=		  $(COMPONENT_NAME)-$(COMPONENT_VERSION)
-COMPONENT_ARCHIVE=	  $(COMPONENT_SRC).tar.bz2
-COMPONENT_ARCHIVE_URL= \
-  https://www.x.org/releases/individual/data/$(COMPONENT_NAME)/$(COMPONENT_ARCHIVE)
-COMPONENT_ARCHIVE_HASH= \
-  sha256:2a4bbc05fea22151b7a7c8ac2655d549aa9b0486bedc7f5a68c72716343b02f3
+COMPONENT_PROJECT_URL=    https://freedesktop.org/wiki/Software/XKeyboardConfig/
+COMPONENT_ARCHIVE_URL=	  https://www.x.org/releases/individual/data/$(COMPONENT_NAME)/$(COMPONENT_ARCHIVE)
+COMPONENT_ARCHIVE_HASH=	  sha256:1feee317ba39b91902b0cbd2987c0c73e6afbfc8f4c096367a5c86c216c036a8
 COMPONENT_LICENSE=        MIT
 
-include $(WS_MAKE_RULES)/prep.mk
-include $(WS_MAKE_RULES)/configure.mk
-include $(WS_MAKE_RULES)/ips.mk
+include $(WS_MAKE_RULES)/common.mk
 
-PATH=$(PATH.gnu)
-
-build:		$(BUILD_32)
-
-install:	$(INSTALL_32)
-
-test:		$(TEST_32)
-
+# Manually added build dependencies
 REQUIRED_PACKAGES += text/intltool
 REQUIRED_PACKAGES += x11/keyboard/xkbcomp

@@ -2,10 +2,12 @@ PASS: backref
 PASS: backref-alt
 PASS: backref-multibyte-slow
 PASS: backref-word
+PASS: backslash-dot
 PASS: backslash-s-and-repetition-operators
-PASS: backslash-s-vs-invalid-multitype
+PASS: backslash-s-vs-invalid-multibyte
 SKIP: big-hole
 SKIP: big-match
+PASS: binary-file-matches
 PASS: bogus-wctob
 PASS: bre
 PASS: c-locale
@@ -22,6 +24,7 @@ PASS: count-newline
 PASS: dfa-coverage
 PASS: dfa-heap-overrun
 PASS: dfa-infloop
+PASS: dfa-invalid-utf8
 PASS: dfaexec-multibyte
 PASS: empty
 PASS: empty-line
@@ -53,12 +56,15 @@ PASS: khadafy
 PASS: kwset-abuse
 SKIP: long-line-vs-2GiB-read
 SKIP: long-pattern-perf
+SKIP: many-regex-performance
 PASS: match-lines
 PASS: max-count-overread
 PASS: max-count-vs-context
 PASS: mb-dot-newline
 SKIP: mb-non-UTF8-overrun
+SKIP: mb-non-UTF8-perf-Fw
 SKIP: mb-non-UTF8-performance
+SKIP: mb-non-UTF8-word-boundary
 PASS: multibyte-white-space
 PASS: multiple-begin-or-end-line
 PASS: null-byte
@@ -108,9 +114,9 @@ PASS: word-multibyte
 PASS: write-error-msg
 PASS: yesno
 PASS: z-anchor-newline
-# TOTAL: 110
-# PASS:  97
-# SKIP:  11
+# TOTAL: 116
+# PASS:  100
+# SKIP:  14
 # XFAIL: 2
 # FAIL:  0
 # XPASS: 0
@@ -134,8 +140,9 @@ PASS: test-cloexec
 PASS: test-close
 PASS: test-connect
 PASS: test-ctype
-PASS: dfa-invalid-char-class.sh
-PASS: dfa-match.sh
+PASS: test-dfa-invalid-char-class.sh
+PASS: test-dfa-invalid-merge.sh
+PASS: test-dfa-match.sh
 PASS: test-dirent
 PASS: test-dup
 PASS: test-dup2
@@ -159,6 +166,8 @@ PASS: test-fgetc
 PASS: test-float
 PASS: test-fnmatch-h
 PASS: test-fnmatch
+PASS: test-fopen-gnu
+PASS: test-fopen
 PASS: test-fpending.sh
 PASS: test-fputc
 PASS: test-fread
@@ -172,6 +181,7 @@ PASS: test-getopt-gnu
 PASS: test-getopt-posix
 PASS: test-getprogname
 PASS: test-gettimeofday
+PASS: test-hard-locale
 PASS: test-hash
 PASS: test-i-ring
 PASS: test-iconv-h
@@ -185,6 +195,8 @@ PASS: test-ioctl
 PASS: test-isatty
 PASS: test-isblank
 PASS: test-iswblank
+PASS: test-iswdigit.sh
+PASS: test-iswxdigit.sh
 PASS: test-langinfo
 PASS: test-limits-h
 PASS: test-listen
@@ -210,6 +222,7 @@ PASS: test-memrchr
 PASS: test-nanosleep
 PASS: test-netinet_in
 PASS: test-nl_langinfo.sh
+PASS: test-nl_langinfo-mt
 PASS: test-open
 PASS: test-openat-safer
 PASS: test-openat
@@ -217,15 +230,24 @@ PASS: test-pathmax
 PASS: test-perror.sh
 PASS: test-perror2
 PASS: test-pipe
+PASS: test-pthread
+PASS: test-pthread-thread
+PASS: test-pthread_sigmask1
+PASS: test-pthread_sigmask2
 PASS: test-quotearg-simple
 PASS: test-raise
+PASS: test-rawmemchr
 PASS: test-read
 PASS: test-realloc-gnu
 PASS: test-regex
+PASS: test-sched
 PASS: test-select
 PASS: test-select-in.sh
 PASS: test-select-out.sh
 PASS: test-setenv
+PASS: test-setlocale_null
+PASS: test-setlocale_null-mt-one
+PASS: test-setlocale_null-mt-all
 PASS: test-setlocale1.sh
 PASS: test-setlocale2.sh
 PASS: test-setsockopt
@@ -262,6 +284,8 @@ PASS: test-sys_time
 PASS: test-sys_types
 PASS: test-sys_uio
 PASS: test-init.sh
+PASS: test-thread_self
+PASS: test-thread_create
 PASS: test-time
 PASS: test-dup-safer
 PASS: test-unistd
@@ -283,14 +307,16 @@ SKIP: test-wcrtomb-w32-2.sh
 SKIP: test-wcrtomb-w32-3.sh
 SKIP: test-wcrtomb-w32-4.sh
 SKIP: test-wcrtomb-w32-5.sh
+SKIP: test-wcrtomb-w32-6.sh
+SKIP: test-wcrtomb-w32-7.sh
 PASS: test-wctype-h
 PASS: test-wcwidth
 PASS: test-xalloc-die.sh
 PASS: test-xstrtoimax.sh
 PASS: test-xstrtol.sh
-# TOTAL: 173
-# PASS:  166
-# SKIP:  7
+# TOTAL: 193
+# PASS:  184
+# SKIP:  9
 # XFAIL: 0
 # FAIL:  0
 # XPASS: 0

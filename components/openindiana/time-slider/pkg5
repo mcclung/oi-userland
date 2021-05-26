@@ -1,0 +1,13 @@
+{
+    "dependencies": [
+        "SUNWcs",
+        "library/glib2",
+        "runtime/python-35",
+        "shell/ksh93",
+        "system/library"
+    ],
+    "fmris": [
+        "desktop/time-slider"
+    ],
+    "name": "time-slider"
+}

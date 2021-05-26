@@ -1,0 +1,15 @@
+{
+    "dependencies": [
+        "SUNWcs",
+        "library/pcre",
+        "library/security/openssl",
+        "library/zlib",
+        "runtime/lua-53",
+        "shell/ksh93",
+        "system/library"
+    ],
+    "fmris": [
+        "web/loadbalancer/haproxy"
+    ],
+    "name": "haproxy"
+}

@@ -10,6 +10,7 @@
 #
 
 #
+# Copyright 2021 Gary Mills
 # Copyright 2016 Alexander Pyhalov
 #
 
@@ -17,13 +18,13 @@ include ../../../make-rules/shared-macros.mk
 
 COMPONENT_NAME= bacula
 
-COMPONENT_VERSION= 5.2.13
-COMPONENT_REVISION= 6
+COMPONENT_VERSION= 9.6.7
+COMPONENT_REVISION= 1
 COMPONENT_SUMMARY= Bacula (network backup solution)
 COMPONENT_SRC= $(COMPONENT_NAME)-$(COMPONENT_VERSION)
 COMPONENT_ARCHIVE= $(COMPONENT_SRC).tar.gz
 COMPONENT_ARCHIVE_HASH= \
-  sha256:a4bed458bf001889bd06bf31671b5d9908055a1d1e8113fd750ae4d326607ad8
+  sha256:df0f8525ecdba380e74b537ca71adf3b7596593f02189b59ab0ebffc85ccc8de
 COMPONENT_ARCHIVE_URL= \
   http://sourceforge.net/projects/bacula/files/bacula/$(COMPONENT_VERSION)/$(COMPONENT_ARCHIVE)/download
 COMPONENT_PROJECT_URL = http://www.bacula.org
@@ -37,8 +38,6 @@ COMPONENT_PRE_CONFIGURE_ACTION =        ($(CLONEY) $(SOURCE_DIR) $(@D))
 
 LD_Z_IGNORE =
 LD_B_DIRECT =
-CXXFLAGS.32=-D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE
-CFLAGS.32=-D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE
 
 CXXFLAGS+=$(CXXFLAGS.$(BITS))
 CFLAGS+=$(CFLAGS.$(BITS))
@@ -60,20 +59,21 @@ CONFIGURE_OPTIONS+= --with-openssl
 CONFIGURE_OPTIONS+= --with-tcp-wrappers
 CONFIGURE_OPTIONS+= --with-readline=/usr/include/readline
 CONFIGURE_OPTIONS+= --disable-conio
+CONFIGURE_OPTIONS+= --disable-afs
 CONFIGURE_OPTIONS+= --disable-rpath
-CONFIGURE_ENV    += PYTHON="$(PYTHON)"
 CONFIGURE_ENV.64    += lt_cv_sys_lib_dlsearch_path_spec="/lib/$(MACH64) /usr/lib/$(MACH64)"
 
-# don't embed 64-bit paths in scripts
-$(INSTALL_32): $(INSTALL_64)
+build: $(BUILD_64)
 
-build: $(BUILD_32_and_64)
+install: $(INSTALL_64)
 
-install: $(INSTALL_32_and_64)
+test: $(NO_TESTS)
 
-REQUIRED_PACKAGES += SUNWcs
+# Auto-generated dependencies
+REQUIRED_PACKAGES += $(GCC_RUNTIME_PKG)
+REQUIRED_PACKAGES += $(GXX_RUNTIME_PKG)
+REQUIRED_PACKAGES += $(PG_LIBRARY_PKG)
 REQUIRED_PACKAGES += database/mariadb-101/library
-REQUIRED_PACKAGES += database/postgres-94/library
 REQUIRED_PACKAGES += database/sqlite-3
 REQUIRED_PACKAGES += library/lzo
 REQUIRED_PACKAGES += library/ncurses
@@ -81,8 +81,6 @@ REQUIRED_PACKAGES += library/readline
 REQUIRED_PACKAGES += library/security/openssl
 REQUIRED_PACKAGES += library/zlib
 REQUIRED_PACKAGES += runtime/perl-522
-REQUIRED_PACKAGES += runtime/python-27
+REQUIRED_PACKAGES += SUNWcs
 REQUIRED_PACKAGES += system/library
-REQUIRED_PACKAGES += $(GXX_RUNTIME_PKG)
-REQUIRED_PACKAGES += $(GCC_RUNTIME_PKG)
 REQUIRED_PACKAGES += system/library/math

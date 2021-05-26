@@ -1,0 +1,13 @@
+{
+    "dependencies": [
+        "SUNWcs",
+        "library/librsync",
+        "runtime/python-37",
+        "system/library"
+    ],
+    "fmris": [
+        "backup/rdiff-backup-37",
+        "backup/rdiff-backup"
+    ],
+    "name": "rdiff-backup"
+}

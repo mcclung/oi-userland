@@ -1,0 +1,21 @@
+{
+    "dependencies": [
+        "SUNWcs",
+        "developer/clang-90",
+        "library/http-parser",
+        "library/libssh2",
+        "library/security/openssl",
+        "library/zlib",
+        "shell/ksh93",
+        "system/library",
+        "system/library/g++-7-runtime",
+        "system/library/gcc-7-runtime",
+        "system/library/math",
+        "utility/bash-completion",
+        "web/curl"
+    ],
+    "fmris": [
+        "developer/lang/rustc"
+    ],
+    "name": "rustc"
+}

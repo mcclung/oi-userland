@@ -1,0 +1,12 @@
+{
+    "dependencies": [
+        "SUNWcs",
+        "runtime/perl-524",
+        "shell/ksh93",
+        "system/library"
+    ],
+    "fmris": [
+        "developer/debug/valgrind"
+    ],
+    "name": "valgrind"
+}

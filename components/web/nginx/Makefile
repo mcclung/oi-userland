@@ -12,24 +12,26 @@
 # Copyright 2012-2013, EveryCity Ltd. All rights reserved.
 #
 
+BUILD_BITS = 64
+#USE_OPENSSL11= yes
 include ../../../make-rules/shared-macros.mk
 
 COMPONENT_NAME=		nginx
-COMPONENT_VERSION=	1.16.0
+COMPONENT_VERSION=	1.20.0
 COMPONENT_LICENSE=	BSD
-COMPONENT_PROJECT_URL=	http://nginx.net/
+COMPONENT_PROJECT_URL=	https://nginx.net/
 COMPONENT_SUMMARY=	Nginx Webserver
 COMPONENT_SRC=		$(COMPONENT_NAME)-$(COMPONENT_VERSION)
 COMPONENT_ARCHIVE=	$(COMPONENT_SRC).tar.gz
-COMPONENT_ARCHIVE_HASH=	sha256:4fd376bad78797e7f18094a00f0f1088259326436b537eb5af69b01be2ca1345
-COMPONENT_ARCHIVE_URL=	http://nginx.org/download/$(COMPONENT_ARCHIVE)
+COMPONENT_ARCHIVE_HASH=	sha256:54ef91ec8ebcaa486c640c09c92d832eaeaff149b10ee52ef140f407b1b04d1c
+COMPONENT_ARCHIVE_URL=	https://nginx.org/download/$(COMPONENT_ARCHIVE)
 COMPONENT_SIG_URL=	$(COMPONENT_ARCHIVE_URL).asc
 COMPONENT_FMRI=	web/server/nginx
 COMPONENT_CLASSIFICATION=	Web Services/Application and Web Servers
 
-include $(WS_MAKE_RULES)/prep.mk
-include $(WS_MAKE_RULES)/configure.mk
-include $(WS_MAKE_RULES)/ips.mk
+TEST_TARGET= $(NO_TESTS)
+
+include $(WS_MAKE_RULES)/common.mk
 
 CONFIGURE_OPTIONS =  --prefix=/etc/nginx
 CONFIGURE_OPTIONS += --sbin-path=/usr/sbin/nginx
@@ -68,17 +70,13 @@ COMPONENT_PRE_CONFIGURE_ACTION = ($(CLONEY) $(SOURCE_DIR) $(@D))
 COMPONENT_POST_INSTALL_ACTION+= \
 	( $(MKDIR) $(PROTO_DIR)/var/nginx/logs )
 
-build:		$(BUILD_64)
-
-install:	$(INSTALL_64)
-
-test:		$(NO_TESTS)
-
+# Auto-generated dependencies
+REQUIRED_PACKAGES += SUNWcs
 REQUIRED_PACKAGES += database/geoip
 REQUIRED_PACKAGES += library/libxml2
 REQUIRED_PACKAGES += library/libxslt
 REQUIRED_PACKAGES += library/pcre
 REQUIRED_PACKAGES += library/security/openssl
 REQUIRED_PACKAGES += library/zlib
-REQUIRED_PACKAGES += SUNWcs
+REQUIRED_PACKAGES += shell/ksh93
 REQUIRED_PACKAGES += system/library

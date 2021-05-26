@@ -12,30 +12,31 @@
 #
 # Copyright 2017 Alexander Pyhalov
 # Copyright 2019 Michal Nowak
+# Copyright 2020 Marco van Wieringen
 #
+
+BUILD_BITS=		32_and_64
 
 include ../../../make-rules/shared-macros.mk
 
 COMPONENT_NAME=		gtk+
-COMPONENT_VERSION=	3.24.8
+COMPONENT_VERSION=	3.24.24
 COMPONENT_SUMMARY=	GTK+ - GIMP Toolkit Library for creation of graphical user interfaces
 COMPONENT_SRC=		$(COMPONENT_NAME)-$(COMPONENT_VERSION)
 COMPONENT_ARCHIVE=	$(COMPONENT_SRC).tar.xz
 COMPONENT_ARCHIVE_HASH= \
-	sha256:666962de9b9768fe9ca785b0e2f42c8b9db3868a12fa9b356b167238d70ac799
+	sha256:cc9d4367c55b724832f6b09ab85481738ea456871f0381768a6a99335a98378a
 COMPONENT_ARCHIVE_URL= \
-	http://ftp.gnome.org/pub/GNOME/sources/$(COMPONENT_NAME)/3.24/$(COMPONENT_ARCHIVE)
+	https://ftp.gnome.org/pub/GNOME/sources/$(COMPONENT_NAME)/3.24/$(COMPONENT_ARCHIVE)
 COMPONENT_PROJECT_URL=	https://www.gtk.org/
 COMPONENT_LICENSE=	LGPLv2
 COMPONENT_LICENSE_FILE=	COPYING
 COMPONENT_CLASSIFICATION=	Desktop (GNOME)/Libraries
 COMPONENT_FMRI=		library/desktop/gtk3
 
-include $(WS_MAKE_RULES)/prep.mk
-include $(WS_MAKE_RULES)/configure.mk
-include $(WS_MAKE_RULES)/ips.mk
+include $(WS_MAKE_RULES)/common.mk
 
-PATH=/usr/gnu/bin:/usr/bin
+PATH=$(PATH.gnu)
 
 CFLAGS += -I/usr/X11/include
 
@@ -62,7 +63,7 @@ CONFIGURE_OPTIONS.32 = --sysconfdir=/etc
 CONFIGURE_OPTIONS.64 = --sysconfdir=/etc/$(MACH64)
 CONFIGURE_OPTIONS += --enable-explicit-deps=yes
 CONFIGURE_OPTIONS += --enable-cloudprint
-CONFIGURE_OPTIONS += --enable-introspection
+CONFIGURE_OPTIONS.64 += --enable-introspection
 CONFIGURE_OPTIONS += --enable-man
 CONFIGURE_OPTIONS += --disable-glibtest
 CONFIGURE_OPTIONS += --disable-papi
@@ -78,12 +79,6 @@ COMPONENT_BUILD_ENV += CC="$(CC)"
 unexport SHELLOPTS
 COMPONENT_TEST_TRANSFORMER = grep
 COMPONENT_TEST_TRANSFORMS = '"^  /"'
-
-build: $(BUILD_32_and_64)
-
-install: $(INSTALL_32_and_64)
-
-test: $(TEST_32_and_64)
 
 # Test dependencies
 REQUIRED_PACKAGES += gnome/theme/hicolor-icon-theme

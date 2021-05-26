@@ -22,15 +22,19 @@
 #
 # Copyright (c) 2014, 2018, Oracle and/or its affiliates. All rights reserved.
 # Copyright (c) 2019, Michal Nowak
+# Copyright (c) 2021, Nona Hansel
 #
 
 # Component uses ABI3 naming.
 PYTHON3_SOABI=abi3
 
+BUILD_BITS=				32_and_64
+BUILD_STYLE=			setup.py
 include ../../../make-rules/shared-macros.mk
 
 COMPONENT_NAME=		cryptography
 COMPONENT_VERSION=	2.6.1
+COMPONENT_REVISION=	5
 COMPONENT_SRC=		$(COMPONENT_NAME)-$(COMPONENT_VERSION)
 COMPONENT_ARCHIVE=	$(COMPONENT_SRC).tar.gz
 COMPONENT_ARCHIVE_HASH=	\
@@ -38,42 +42,27 @@ COMPONENT_ARCHIVE_HASH=	\
 COMPONENT_ARCHIVE_URL=	$(call pypi_url)
 COMPONENT_PROJECT_URL=	https://cryptography.io/
 
-PYTHON_VERSIONS = 2.7 3.4 3.5
+PYTHON_VERSIONS = $(PYTHON_VERSIONS_ALL)
 
-include $(WS_MAKE_RULES)/prep.mk
-include $(WS_MAKE_RULES)/setup.py.mk
-include $(WS_MAKE_RULES)/ips.mk
+TEST_TARGET=			$(TEST_32_and_64)
+include $(WS_MAKE_RULES)/common.mk
 
-build:		$(BUILD_32_and_64)
+# 64-bit python loads *.so modules from 64-bit subdir,
+# but during tests libraries are installed to non-confirming path
+COMPONENT_PREP_ACTION += (cd $(SOURCE_DIR)/src/cryptography/hazmat/bindings && $(MKDIR) 64 &&  $(LN) -sf *.so 64/ )
 
-install:	$(INSTALL_32_and_64)
-
-#
-# The test suite requires several PyPI packages not in our distribution.
-# Install them for all Pythons in $(PYTHON_VERSION) like this (replace
-# Makefile variables, where appropriate; X and Y stand for Python minor
-# and, respectively, major version):
-#
-#   pipX.Y install --user cryptography-vectors==$(COMPONENT_VERSION) iso8601 pretend pytest hypothesis pyasn1-modules
-#
-# Results for Python 2.7.16, 3.4.9, and 3.5.6 for 32-bit and 64-bit:
-#
-#   96920 passed, 10057 skipped
-#
-COMPONENT_TEST_ENV +=   PYTHONPATH=$$HOME/.local/lib/python$(PYTHON_VERSION)/site-packages
 COMPONENT_TEST_DIR=	$(COMPONENT_SRC)
 COMPONENT_TEST_CMD=	$(PYTHON) setup.py test
 COMPONENT_TEST_ARGS=
 
-test:		$(TEST_32_and_64)
-
-REQUIRED_PACKAGES += library/python/pytest-27
-REQUIRED_PACKAGES += library/python/pytest-34
 REQUIRED_PACKAGES += library/python/pytest-35
+REQUIRED_PACKAGES += library/python/pytest-37
+REQUIRED_PACKAGES += library/python/pytest-39
 REQUIRED_PACKAGES += library/python/cffi
-REQUIRED_PACKAGES += runtime/python-34
 # Auto-generated dependencies
 REQUIRED_PACKAGES += library/security/openssl
 REQUIRED_PACKAGES += runtime/python-27
 REQUIRED_PACKAGES += runtime/python-35
+REQUIRED_PACKAGES += runtime/python-37
+REQUIRED_PACKAGES += runtime/python-39
 REQUIRED_PACKAGES += system/library

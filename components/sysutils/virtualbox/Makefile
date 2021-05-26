@@ -10,36 +10,39 @@
 
 #
 # Copyright 2017 Aurelien Larcher
-# Copyright 2019 Michal Nowak
+# Copyright 2020 Michal Nowak
 # Copyright 2019 Tim Mooney
+# Copyright 2020 Jim Klimov
 #
 
 include ../../../make-rules/shared-macros.mk
 
 COMPONENT_NAME=         VirtualBox
-COMPONENT_VERSION=      6.0.8
+COMPONENT_VERSION=      6.1.18
+COMPONENT_REVISION=      1
 COMPONENT_SUMMARY=      VirtualBox - general-purpose full virtualizer
-COMPONENT_PROJECT_URL=  http://www.virtualbox.org/
+COMPONENT_PROJECT_URL=  https://www.virtualbox.org/
 COMPONENT_FMRI=         system/virtualbox
 COMPONENT_CLASSIFICATION= System/Virtualization
-COMPONENT_SRC=		$(COMPONENT_NAME)-$(COMPONENT_VERSION)
-COMPONENT_ARCHIVE=	$(COMPONENT_SRC).tar.bz2
+COMPONENT_SRC=			$(COMPONENT_NAME)-$(COMPONENT_VERSION)
+COMPONENT_ARCHIVE=		$(COMPONENT_SRC).tar.bz2
 COMPONENT_DOWNLOAD_URL= \
-	http://download.virtualbox.org/virtualbox/$(COMPONENT_VERSION)
+	https://download.virtualbox.org/virtualbox/$(COMPONENT_VERSION)
 COMPONENT_ARCHIVE_URL=  $(COMPONENT_DOWNLOAD_URL)/$(COMPONENT_ARCHIVE)
 COMPONENT_ARCHIVE_HASH= \
-	sha256:1b5aa85118c62fb67867b95167b05e66aa154b2caf44c0a3dc932ea5bee85d87
+	sha256:108d42b9b391b7a332a33df1662cf7b0e9d9a80f3079d16288d8b9487f427d40	
 COMPONENT_LICENSE=      GPLv2
 
 COMPONENT_NAME_1=       VirtualBoxSDK
-COMPONENT_VERSION_1=    $(COMPONENT_VERSION)-130520
+COMPONENT_VERSION_1=    $(COMPONENT_VERSION)-142142
 COMPONENT_SRC_1=        $(COMPONENT_NAME_1)-$(COMPONENT_VERSION_1)
 COMPONENT_ARCHIVE_1=    $(COMPONENT_SRC_1).zip
 COMPONENT_ARCHIVE_URL_1=$(COMPONENT_DOWNLOAD_URL)/$(COMPONENT_ARCHIVE_1)
 COMPONENT_ARCHIVE_HASH_1= \
-	sha256:b3f38221437a5a5e91b9d2d1fdb1243cccc7f270dc2bfe4d463b5328766c4440
+	sha256:49f8396e2a3295682f36250df91f4ffd64696cbc661ad03e8e3726459ac49b7f
 COMPONENT_LICENSE_1=      GPLv2
-UNPACK_ARGS_1= -r $(COMPONENT_SRC_1)
+
+UNPACK_ARGS_1=		-r $(COMPONENT_SRC_1)
 
 COMPONENT_POST_UNPACK_ACTION_1 = \
 	cd $(COMPONENT_SRC); $(LN) -s ../$(COMPONENT_SRC_1)/sdk .;
@@ -67,9 +70,8 @@ VBOX_FS_MODULES= vboxfs
 
 VBOX_BINS= VBoxControl VBoxService VBoxClient
 VBOX_SBINS= vboxmslnk
-VBOX_OGLLIBS= VBoxOGL.so VBoxOGLarrayspu.so VBoxOGLcrutil.so VBoxOGLerrorspu.so VBoxOGLfeedbackspu.so VBoxOGLpackspu.so VBoxOGLpassthroughspu.so VBoxEGL.so
 
-QT5_ROOT=/usr/lib/qt/5.8
+QT5_ROOT=/usr/lib/qt/5.12
 PATH=$(PATH.gnu):$(QT5_ROOT)/bin/$(MACH64)
 PKG_CONFIG_PATH=$(PKG_CONFIG_PATH.$(BITS)):$(QT5_ROOT)/lib/$(MACH64)/pkgconfig
 
@@ -118,12 +120,25 @@ LOCAL_CONFIG+='\nVBOX_WITH_DTRACE_R0DRV ='
 LOCAL_CONFIG+='\nVBOX_WITH_DTRACE_RC ='
 LOCAL_CONFIG+='\nVBOX_WITH_NATIVE_DTRACE ='
 
+# Do not allow compiler override in kmk files
+LOCAL_CONFIG+= '\nTOOL_GXX3PLAIN_CC  = $(CC)'
+LOCAL_CONFIG+= '\nTOOL_GXX3PLAIN_CXX = $(CXX)'
+LOCAL_CONFIG+= '\nTOOL_GXX3PLAIN_AS  = $(CC)'
+LOCAL_CONFIG+= '\nTOOL_GXX3PLAIN_LD  = $(CXX)'
+LOCAL_CONFIG+= '\nTOOL_GCC3PLAIN_CC  = $(CC)'
+LOCAL_CONFIG+= '\nTOOL_GCC3PLAIN_CXX = $(CXX)'
+LOCAL_CONFIG+= '\nTOOL_GCC3PLAIN_AS  = $(CC)'
+LOCAL_CONFIG+= '\nTOOL_GCC3PLAIN_LD  = $(CXX)'
+
 # Set OpenIndiana project as publisher of VirtualBox binaries
 VBOX_BUILD_PUBLISHER=OpenIndiana
 
 COMPONENT_PRE_CONFIGURE_ACTION= \
   ( cd $(@D); echo $(LOCAL_CONFIG) > LocalConfig.kmk; $(CP) -a $(SOURCE_DIR)/* $(@D) )
 
+# Note: VirtualBox does not use a fully featured autoconf-style script,
+# so we must define the full set of command line options here, not using
+# values set via our configure.mk. Same for .32/.64 values added below.
 CONFIGURE_OPTIONS = --with-gcc="$(CC)"
 CONFIGURE_OPTIONS+= --with-g++="$(CXX)"
 
@@ -141,15 +156,15 @@ CONFIGURE_OPTIONS+= --nofatal
 CONFIGURE_OPTIONS+= --enable-webservice
 CONFIGURE_OPTIONS+= --enable-vnc
 
-CONFIGURE_OPTIONS.32 += --only-additions
+CONFIGURE_OPTIONS.32 = --only-additions
 CONFIGURE_OPTIONS.32 += --target-arch=x86
-CONFIGURE_OPTIONS.64 += --enable-qt5
+CONFIGURE_OPTIONS.64 = --enable-qt5
 
 CONFIGURE_OPTIONS += $(CONFIGURE_OPTIONS.$(BITS))
 
 VBOX_PREFIX   = /opt/VirtualBox
 VBOX_LIBDIR   = $(VBOX_PREFIX)/$(MACH64)
-VBOX_QT5_LIBS = VirtualBoxVM.so VBoxDbg.so VBoxGlobal.so
+VBOX_QT5_LIBS = VirtualBoxVM.so VBoxDbg.so UICommon.so
 VBOX_QT5_RPATH= $(VBOX_LIBDIR):$(GCC_LIBDIR):$(QT5_ROOT)/lib/$(MACH64)
 
 # As IPS is "no scripting land", user has to install the VNC extension Pack manually:
@@ -183,16 +198,12 @@ $(INSTALL_ADDITIONS):	$(INSTALL_64)
 	done
 	for fl in $(VBOX_BINS); do \
 		cp $(VBOX_BINDIR)/$$fl $(PROTO_DIR)/usr/bin; \
-        done
+		done
 	for fl in $(VBOX_SBINS); do \
 		cp $(VBOX_BINDIR)/$$fl $(PROTO_DIR)/usr/sbin; \
-        done
+		done
 	cp $(VBOX_BINDIR)/1099.vboxclient $(PROTO_DIR)/usr/bin/VBoxClient-all
 	$(MKDIR) $(PROTO_DIR)/usr/lib/$(MACH64)
-	for fl in $(VBOX_OGLLIBS); do \
-		cp $(VBOX_BINDIR)/$$fl $(PROTO_DIR)/usr/lib/$(MACH64); \
-		cp $(VBOX_BINDIR.32)/$$fl $(PROTO_DIR)/usr/lib/; \
-        done
 	$(MKDIR) $(PROTO_DIR)/var/svc/manifest/application/virtualbox
 	cp $(VBOX_BINDIR)/vboxservice.xml $(PROTO_DIR)/var/svc/manifest/application/virtualbox
 	cp $(VBOX_BINDIR)/vboxmslnk.xml $(PROTO_DIR)/var/svc/manifest/application/virtualbox
@@ -210,7 +221,7 @@ $(BUILD_32_and_64): GMAKE= cd $(@D)/src/VBox/HostDrivers && $(SHELL) -c ". $(@D)
 
 # Sometimes 32-bit build is skipped silently. Better build like this:
 #	gmake build install sample-manifest
-build:		$(BUILD_32_and_64) 
+build:		$(BUILD_32_and_64)
 
 $(INSTALL_64): GMAKE= cd $(@D)/src/VBox/Installer && $(SHELL) -c ". $(@D)/env.sh && kmk solaris-install VBOX_PATH_SI_SCRATCH_PKG=$(PROTO_DIR)"
 
@@ -227,25 +238,21 @@ REQUIRED_PACKAGES += x11/library/libxinerama
 REQUIRED_PACKAGES += library/libvncserver
 
 # Auto-generated dependencies
+REQUIRED_PACKAGES += $(GCC_RUNTIME_PKG)
+REQUIRED_PACKAGES += $(GXX_RUNTIME_PKG)
+REQUIRED_PACKAGES += SUNWcs
 REQUIRED_PACKAGES += image/library/libpng16
 REQUIRED_PACKAGES += library/gsoap
 REQUIRED_PACKAGES += library/libxml2
 REQUIRED_PACKAGES += library/qt5
 REQUIRED_PACKAGES += library/sdl
 REQUIRED_PACKAGES += library/security/openssl
-REQUIRED_PACKAGES += SUNWcs
 REQUIRED_PACKAGES += system/library
-REQUIRED_PACKAGES += $(GCC_RUNTIME_PKG) 
-REQUIRED_PACKAGES += $(GXX_RUNTIME_PKG)
 REQUIRED_PACKAGES += system/library/math
 REQUIRED_PACKAGES += web/curl
 REQUIRED_PACKAGES += x11/library/libx11
 REQUIRED_PACKAGES += x11/library/libxcb
-REQUIRED_PACKAGES += x11/library/libxcomposite
 REQUIRED_PACKAGES += x11/library/libxcursor
-REQUIRED_PACKAGES += x11/library/libxdamage
 REQUIRED_PACKAGES += x11/library/libxext
-REQUIRED_PACKAGES += x11/library/libxfixes
 REQUIRED_PACKAGES += x11/library/libxmu
-REQUIRED_PACKAGES += x11/library/libxrandr
 REQUIRED_PACKAGES += x11/library/toolkit/libxt

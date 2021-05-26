@@ -12,45 +12,31 @@
 #
 # Copyright 2013 Aurelien Larcher.  All rights reserved.
 # Copyright 2018 Michal Nowak
+# Copyright 2021 Andreas Wacknitz
 #
-PREFERRED_BITS=64
 
+BUILD_BITS=			64_and_32
+BUILD_STYLE=		cmake
 include ../../../make-rules/shared-macros.mk
 
 COMPONENT_NAME=		zziplib
-COMPONENT_VERSION=	0.13.69
-COMPONENT_REVISION=	2
+COMPONENT_VERSION=	0.13.72
 COMPONENT_SUMMARY=	Lightweight ZIP library
 COMPONENT_PROJECT_URL=	https://github.com/gdraheim/zziplib
 COMPONENT_FMRI=		compress/zziplib
 COMPONENT_CLASSIFICATION=Applications/System Utilities
 COMPONENT_SRC=		$(COMPONENT_NAME)-$(COMPONENT_VERSION)
 COMPONENT_ARCHIVE=	$(COMPONENT_SRC).tar.gz
-COMPONENT_ARCHIVE_HASH=	\
-  sha256:846246d7cdeee405d8d21e2922c6e97f55f24ecbe3b6dcf5778073a88f120544
-COMPONENT_ARCHIVE_URL= \
-  https://github.com/gdraheim/zziplib/archive/v$(COMPONENT_VERSION).tar.gz
+COMPONENT_ARCHIVE_HASH=	sha256:93ef44bf1f1ea24fc66080426a469df82fa631d13ca3b2e4abaeab89538518dc
+COMPONENT_ARCHIVE_URL=	https://github.com/gdraheim/zziplib/archive/v$(COMPONENT_VERSION).tar.gz
 COMPONENT_LICENSE=	GPLv2
 
-include $(WS_MAKE_RULES)/prep.mk
-include $(WS_MAKE_RULES)/configure.mk
-include $(WS_MAKE_RULES)/ips.mk
+TEST_TARGET=	$(NO_TESTS)
+include $(WS_MAKE_RULES)/common.mk
 
 PATH=$(PATH.gnu)
 
-COMPONENT_PREP_ACTION=	( cd $(@D); autoreconf -i -f )
-
-CONFIGURE_OPTIONS+=	--enable-shared
-CONFIGURE_OPTIONS+=	--disable-static
-CONFIGURE_OPTIONS+=	--enable-largefile
-
-CONFIGURE_ENV.64+=	lt_cv_sys_lib_dlsearch_path_spec="/lib/$(MACH64) /usr/lib/$(MACH64)"
-
-build:		$(BUILD_32_and_64)
-
-install:	$(INSTALL_32_and_64)
-
-test:		$(NO_TESTS)
+CMAKE_OPTIONS +=	-DBUILD_TESTS=ON
 
 # Build dependencies
 REQUIRED_PACKAGES += text/xmlto

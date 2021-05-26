@@ -22,8 +22,6 @@ depend type=require fmri=desktop/window-manager/twm
 depend type=require fmri=desktop/xdg/xdg-user-dirs-gtk
 depend type=require fmri=desktop/xdg/xdg-utils
 depend type=require fmri=desktop/xscreensaver
-depend type=require fmri=developer/gnome/gnome-doc-utils
-depend type=require fmri=developer/ui-designer/glade
 depend type=require fmri=diagnostic/ddu
 depend type=require fmri=diagnostic/ddu/locale
 depend type=require fmri=diagnostic/xload
@@ -65,7 +63,6 @@ depend type=require fmri=library/gnome/gvfs
 depend type=require fmri=library/xdg/consolekit
 depend type=require fmri=library/xdg/xdg-user-dirs
 depend type=require fmri=mail/thunderbird
-depend type=require fmri=mail/thunderbird/plugin/thunderbird-lightning
 depend type=require fmri=network/ftp/ncftp
 depend type=require fmri=print/cups/system-config-printer
 depend type=require fmri=print/filter/ghostscript

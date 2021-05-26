@@ -13,25 +13,32 @@
 # Copyright 2016 Alexander Pyhalov
 #
 
+BUILD_BITS=NO_ARCH
+BUILD_STYLE=setup.py
+
 include ../../../make-rules/shared-macros.mk
 
 COMPONENT_NAME= 	python-dateutil
-COMPONENT_VERSION= 	2.5.3
+COMPONENT_VERSION= 	2.8.1
+COMPONENT_REVISION=	2
 COMPONENT_SUMMARY= 	Extensions to standard Python datetime module
 COMPONENT_SRC= 		$(COMPONENT_NAME)-$(COMPONENT_VERSION)
 COMPONENT_ARCHIVE= 	$(COMPONENT_SRC).tar.gz
-COMPONENT_ARCHIVE_HASH= \
-  sha256:1408fdb07c6a1fa9997567ce3fcee6a337b39a503d80699e0f213de4aa4b32ed
-COMPONENT_ARCHIVE_URL= \
-  https://pypi.python.org/packages/3e/f5/aad82824b369332a676a90a8c0d1e608b17e740bbb6aeeebca726f17b902/$(COMPONENT_ARCHIVE)
-COMPONENT_PROJECT_URL = https://pypi.python.org/python-dateutil/$(COMPONENT_VERSION)
+COMPONENT_ARCHIVE_HASH=	sha256:73ebfe9dbf22e832286dafa60473e4cd239f8592f699aa5adaf10050e6e1823c
+COMPONENT_ARCHIVE_URL=	$(call pypi_url)
+COMPONENT_PROJECT_URL = https://pypi.python.org/python-dateutil/
+COMPONENT_FMRI=		library/python/python-dateutil
+COMPONENT_CLASSIFICATION=	Development/Python
+COMPONENT_SUMMARY=	powerful extensions to the standard datetime module
+COMPONENT_LICENSE=	Apache 2.0, BSD 3-clause
 
-PYTHON_VERSIONS=	2.7
+PYTHON_VERSIONS=	$(PYTHON_ALL_VERSIONS)
 
-include $(WS_TOP)/make-rules/prep.mk
-include $(WS_TOP)/make-rules/setup.py.mk
-include $(WS_TOP)/make-rules/ips.mk
+TEST_TARGET=$(NO_TESTS)
+include $(WS_MAKE_RULES)/common.mk
 
-build: $(BUILD_32)
-
-install: $(INSTALL_32)
+# Auto-generated dependencies
+REQUIRED_PACKAGES += runtime/python-27
+REQUIRED_PACKAGES += runtime/python-35
+REQUIRED_PACKAGES += runtime/python-37
+REQUIRED_PACKAGES += runtime/python-39

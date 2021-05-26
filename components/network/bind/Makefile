@@ -19,30 +19,28 @@
 # CDDL HEADER END
 #
 # Copyright (c) 2011, 2013, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2020, Michal Nowak
 #
 
-PREFERRED_BITS= 64
-
+BUILD_BITS=			64
+USE_OPENSSL11=		yes
 include ../../../make-rules/shared-macros.mk
 
 COMPONENT_NAME=		bind
-COMPONENT_VERSION=	9.14.3
+COMPONENT_VERSION=	9.16.15
 COMPONENT_SRC=		$(COMPONENT_NAME)-$(COMPONENT_VERSION)
-COMPONENT_ARCHIVE=	$(COMPONENT_SRC).tar.gz
-COMPONENT_PROJECT_URL=	http://www.isc.org/software/bind/
-COMPONENT_ARCHIVE_HASH=	 \
-	sha256:ce878aabcf01b61ed114522c32fff9e268b02da55b3c248349860bc3d0c8bdfa
-COMPONENT_ARCHIVE_URL=	\
-	http://ftp.isc.org/isc/bind9/$(COMPONENT_VERSION)/$(COMPONENT_ARCHIVE)
-COMPONENT_BUGDB=	service/dns-server
+COMPONENT_ARCHIVE=	$(COMPONENT_SRC).tar.xz
+COMPONENT_PROJECT_URL=	https://www.isc.org/software/bind/
+COMPONENT_ARCHIVE_HASH=	sha256:98b6f432d878a7bf8f57eb7b3c28be27278cf6b9989154bfe6c81104b38e7839
+COMPONENT_ARCHIVE_URL=	https://ftp.isc.org/isc/bind9/$(COMPONENT_VERSION)/$(COMPONENT_ARCHIVE)
+COMPONENT_LICENSE=	MPL v2.0
+COMPONENT_LICENSE_FILE=	COPYRIGHT
 
-include $(WS_MAKE_RULES)/prep.mk
-include $(WS_MAKE_RULES)/configure.mk
-include $(WS_MAKE_RULES)/ips.mk
+include $(WS_MAKE_RULES)/common.mk
 
 PYTHON_VERSION=3.5
 
-COMPONENT_PREP_ACTION =	(cd $(@D) && autoconf)
+COMPONENT_PREP_ACTION =	(cd $(@D) && autoreconf -fi)
 
 # Missing files in build dir without this.
 COMPONENT_PRE_CONFIGURE_ACTION =	($(CLONEY) $(SOURCE_DIR) $(@D))
@@ -58,28 +56,22 @@ CFLAGS += $(CPP_XPG6MODE)
 # DNS libraries are in usr/lib/dns - Override settings from configure.mk
 CONFIGURE_LIBDIR.64 =	$(CONFIGURE_PREFIX)/lib/dns/$(MACH64)
 
+CONFIGURE_OPTIONS +=	--disable-static
 CONFIGURE_OPTIONS +=	--with-libtool
 CONFIGURE_OPTIONS +=	--sysconfdir=/etc
 CONFIGURE_OPTIONS +=	--localstatedir=/var
-CONFIGURE_OPTIONS +=	--with-openssl
+CONFIGURE_OPTIONS +=	--with-openssl=/usr
 CONFIGURE_OPTIONS +=	--enable-devpoll=yes
 CONFIGURE_OPTIONS +=	--enable-fixed-rrset
 CONFIGURE_OPTIONS +=	--with-pkcs11=/usr/lib/$(MACH64)/libpkcs11.so
-# Bind configure will check for libxml2 versions 2.6.x/2.7.x/2.8.x.
-# To make it use version 2.9.x we need to skip this check by
-# specifying path where libxml2 is installed.
-CONFIGURE_OPTIONS +=	--with-libxml2=/usr
+CONFIGURE_OPTIONS +=	--with-libxml2
 CONFIGURE_OPTIONS +=	--with-python-install-dir=$(PYTHON_VENDOR_PACKAGES.32)
+CONFIGURE_OPTIONS +=	--with-json-c
 
 CONFIGURE_ENV +=	PYTHON=$(PYTHON)
 
 COMPONENT_BUILD_ENV += PYTHON_VENDOR_DIR=$(PYTHON_VENDOR_PACKAGES)
 COMPONENT_INSTALL_ENV += PYTHON_VENDOR_DIR=$(PYTHON_VENDOR_PACKAGES)
-
-# Enable ASLR for this component
-ASLR_MODE = $(ASLR_ENABLE)
-
-build:		$(BUILD_64)
 
 # Install.
 #
@@ -95,60 +87,34 @@ build:		$(BUILD_64)
 
 install: $(INSTALL_64)
 
-# Test configuration.
-# -------------------
-# Target 'test' is run from PROTO_DIR, while 'system-test' uses root
-# ("/") directory.
-#
-# BIND has its own test target which requires IP addresses 10.53.0.1
-# through 10.53.0.8 to be configured.  Those are not normally
-# configured on the build server so for now do some basic testing
-# rather than $(NO_TESTS).
-#
-TEST_HOSTNAME := $(shell uname -n)
-COMPONENT_TEST_TRANSFORMS +=    \
-        '-e "s|$(PROTO_DIR)||g" ' \
-        '-e "s|$(BUILD_DIR)|\\$$(BUILD_DIR)|g" ' \
-        '-e "s|<id:[^>]*>$$|<id:REDACTED>|" ' \
-        '-e "s| id: [0-9].*$$| id: REDACTED|g" ' \
-        '-e "s| COOKIE: [^ ]* | COOKIE: REDACTED |g" ' \
-        '-e "/;; WHEN:/d" ' \
-        '-e "/;; Query time:/d" ' \
-        '-e "/^REDACT:/d" ' \
-        '-e "s|$(TEST_HOSTNAME)*[^$$ ]*|\\$$(HOSTNAME)|g" ' \
-        '-e "s|rcvd: [0-9]*|rcvd: REDACTED|"g ' \
-        '-e "s|bytes [0-9]*|bytes REDACTED|"g ' \
-        '-e "s|$(COMPONENT_VERSION)|\\$$(COMPONENT_VERSION)|g" '
+COMPONENT_TEST_ENV += PATH=$(PATH.gnu)
+COMPONENT_TEST_ENV += LC_ALL=C LC_TIME=C LC_MONETARY=C
+COMPONENT_PRE_TEST_ACTION=	cd $(BUILD_DIR_64)/bin/tests/system ; pfexec sh ./ifconfig.sh up ;
+COMPONENT_TEST_TARGETS=		test
+COMPONENT_TEST_TRANSFORMS += \
+	' -n ' \
+	' -e "/^R:.*:FAIL/p"' \
+	' -e "/^I:System test result summary/p"' \
+	' -e "/^I:.* PASS$$/p"' \
+	' -e "/^I:.* FAIL$$/p"' \
+	' -e "/^I:.* SKIPPED$$/p"' \
+	' -e "/^I:.* UNTESTED$$/p"'
 
-COMPONENT_TEST_MASTER = $(COMPONENT_TEST_RESULTS_DIR)/results-all.master
-COMPONENT_TEST_ENV +=   LD_LIBRARY_PATH=$(PROTO_DIR)$(CONFIGURE_LIBDIR.64)
-COMPONENT_TEST_CMD =    ksh  $(COMPONENT_DIR)/Solaris/testing.ksh
-COMPONENT_TEST_ARGS =   -d $(BUILD_DIR)/test/config
-COMPONENT_TEST_ARGS +=  -p $(PROTO_DIR)
-
+# Use COMPONENT_TEST_ARGS to parallelize the task.
 $(TEST_64):	$(INSTALL_64)
 
-test: $(TEST_64)
-
-.PHONY: test-version
-test-version:
-	@echo;echo 64 bit version
-	-LD_LIBRARY_PATH=$(PROTO_DIR)$(CONFIGURE_LIBDIR.64) \
-		$(PROTO_DIR)$(CONFIGURE_BINDIR.64)/named -V
-
-.PHONY: test-clean
-test-clean:
-	$(RM) $(TEST_64) $(FULL_TEST_64)
-
 # Auto-generated dependencies
+REQUIRED_PACKAGES += SUNWcs
 REQUIRED_PACKAGES += database/lmdb
 REQUIRED_PACKAGES += library/json-c
 REQUIRED_PACKAGES += library/libedit
+REQUIRED_PACKAGES += library/libuv
 REQUIRED_PACKAGES += library/libxml2
-REQUIRED_PACKAGES += library/security/openssl
+REQUIRED_PACKAGES += library/security/openssl-11
 REQUIRED_PACKAGES += library/zlib
+#REQUIRED_PACKAGES += network/dns/bind
 REQUIRED_PACKAGES += runtime/python-35
 REQUIRED_PACKAGES += service/security/kerberos-5
-REQUIRED_PACKAGES += SUNWcs
+REQUIRED_PACKAGES += shell/ksh93
 REQUIRED_PACKAGES += system/library
 REQUIRED_PACKAGES += system/library/security/gss

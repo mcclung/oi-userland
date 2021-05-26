@@ -12,23 +12,27 @@
 # Copyright 2012-2013, EveryCity Ltd. All rights reserved.
 # Copyright 2019 Alexander Pyhalov
 # Copyright 2019 Michal Nowak
+# Copyright 2021 Gary Mills
 #
+
+BUILD_BITS=32_and_64
 
 include ../../../make-rules/shared-macros.mk
 
 COMPONENT_NAME=			postgresql
 COMPONENT_MJR_VERSION=	11
-COMPONENT_MNR_VERSION=	3
+COMPONENT_MNR_VERSION=	12
 COMPONENT_VERSION=		$(COMPONENT_MJR_VERSION).$(COMPONENT_MNR_VERSION)
 COMPONENT_SRC=			$(COMPONENT_NAME)-$(COMPONENT_VERSION)
 COMPONENT_ARCHIVE=		$(COMPONENT_SRC).tar.bz2
-COMPONENT_ARCHIVE_HASH=	sha256:2a85e082fc225944821dfd23990e32dfcd2284c19060864b0ad4ca537d30522d
+COMPONENT_ARCHIVE_HASH=	sha256:87f9d8b16b2b8ef71586f2ec76beac844819f64734b07fa33986755c2f53cb04
 COMPONENT_ARCHIVE_URL=	http://ftp.postgresql.org/pub/source/v$(COMPONENT_VERSION)/$(COMPONENT_ARCHIVE)
 COMPONENT_PROJECT_URL=	https://www.postgresql.org
 
-include $(WS_MAKE_RULES)/prep.mk
-include $(WS_MAKE_RULES)/configure.mk
-include $(WS_MAKE_RULES)/ips.mk
+# Set python version used by this product
+PYTHON_VERSION=3.7
+
+include $(WS_MAKE_RULES)/common.mk
 
 # Missing files in build dir for configure without this.
 COMPONENT_PRE_CONFIGURE_ACTION =        ($(CLONEY) $(SOURCE_DIR) $(@D))
@@ -81,6 +85,8 @@ CONFIGURE_ENV.32     += PERL=$(PERL)
 CONFIGURE_ENV.64     += PERL=$(PERL.5.24)
 
 COMPONENT_BUILD_ENV += MAKELEVEL=0
+COMPONENT_BUILD_ENV += PATH=$(PATH)
+COMPONENT_INSTALL_ENV += PATH=$(PATH)
 
 COMPONENT_BUILD_TARGETS = world
 COMPONENT_INSTALL_TARGETS = install-world
@@ -102,13 +108,6 @@ COMPONENT_TEST_TRANSFORMS= \
 	'-e "/FAIL/p"' \
 	'-e "/failed/p"'
 
-
-build:		$(BUILD_32_and_64)
-
-install:	$(INSTALL_32_and_64)
-
-test:		$(TEST_64)
-
 REQUIRED_PACKAGES += SUNWcs
 REQUIRED_PACKAGES += library/libedit
 REQUIRED_PACKAGES += library/libxml2
@@ -116,8 +115,9 @@ REQUIRED_PACKAGES += library/libxslt
 REQUIRED_PACKAGES += library/security/openssl
 REQUIRED_PACKAGES += library/zlib
 REQUIRED_PACKAGES += runtime/perl-524
-REQUIRED_PACKAGES += runtime/python-27
+REQUIRED_PACKAGES += runtime/python-37
 REQUIRED_PACKAGES += runtime/tcl-8
+REQUIRED_PACKAGES += shell/ksh93
 REQUIRED_PACKAGES += system/library
 REQUIRED_PACKAGES += system/library/math
 REQUIRED_PACKAGES += system/library/security/gss

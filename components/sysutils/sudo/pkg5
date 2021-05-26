@@ -1,0 +1,13 @@
+{
+    "dependencies": [
+        "SUNWcs",
+        "library/security/openssl-11",
+        "library/zlib",
+        "shell/ksh93",
+        "system/library"
+    ],
+    "fmris": [
+        "security/sudo"
+    ],
+    "name": "sudo"
+}
